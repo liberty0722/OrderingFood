@@ -1,0 +1,53 @@
+<!-- pages/cart/cart.wxml -->
+<view class="cart-page">
+  <!-- 购物车为空 -->
+  <view wx:if="{{totalCount === 0}}" class="empty-state">
+    <text class="empty-icon">🛒</text>
+    <text class="empty-text">购物车空空如也</text>
+    <view class="empty-btn" bindtap="onGoOrder">去点餐</view>
+  </view>
+
+  <!-- 购物车列表 -->
+  <view wx:else class="cart-content">
+    <view class="cart-header">
+      <text class="cart-header-title">已选商品 ({{totalCount}}件)</text>
+      <view class="cart-header-clear" bindtap="onClearCart">
+        <text>🗑️ 清空</text>
+      </view>
+    </view>
+
+    <scroll-view class="cart-list" scroll-y enhanced show-scrollbar="{{false}}">
+      <view wx:for="{{cart}}" wx:key="id" class="cart-item {{item.isCustom ? 'cart-item-custom' : ''}}">
+        <view class="cart-item-img" style="{{item.isCustom ? 'background: linear-gradient(135deg, #E8F5E9, #A5D6A7);' : ''}}">
+          <text class="cart-item-emoji">{{item.isCustom ? '✏️' : '🍽️'}}</text>
+        </view>
+        <view class="cart-item-info">
+          <text class="cart-item-name">{{item.name}}</text>
+          <view class="cart-item-bottom">
+            <text class="cart-item-price">¥{{item.price}}</text>
+            <view class="cart-item-controls">
+              <view class="reduce-btn" data-id="{{item.id}}" catchtap="onReduceItem">
+                <text>−</text>
+              </view>
+              <text class="item-count">{{item.count}}</text>
+              <view class="add-btn" data-item="{{item}}" catchtap="onAddItem">
+                <text>+</text>
+              </view>
+            </view>
+          </view>
+          <text class="cart-item-subtotal">小计：¥{{item.price * item.count}}</text>
+        </view>
+      </view>
+      <view style="height: 200rpx;"></view>
+    </scroll-view>
+
+    <!-- 底部结算栏 -->
+    <view class="checkout-bar">
+      <view class="checkout-info">
+        <text class="checkout-label">合计：</text>
+        <text class="checkout-price">¥{{totalPrice}}</text>
+      </view>
+      <view class="checkout-btn" bindtap="onGoCheckout">去结算</view>
+    </view>
+  </view>
+</view>

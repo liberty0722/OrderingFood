@@ -1,0 +1,98 @@
+<!-- pages/mine/mine.wxml -->
+<view class="mine-page">
+  <!-- 未登录状态 -->
+  <view wx:if="{{!isLoggedIn}}" class="not-login">
+    <view class="not-login-icon">👤</view>
+    <view class="not-login-text">未登录</view>
+    <view class="not-login-desc">登录后查看订单和历史记录</view>
+    <view class="login-btns">
+      <button class="btn customer-btn" bindtap="onLogin">顾客登录</button>
+      <button class="btn merchant-btn" bindtap="onMerchantLogin">商家登录</button>
+    </view>
+  </view>
+
+  <!-- 已登录状态 -->
+  <view wx:else class="login-state">
+    <!-- 用户头像区域 -->
+    <view class="user-header">
+      <view class="user-avatar">
+        <image wx:if="{{userInfo.avatarUrl}}" class="avatar-image" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
+        <text wx:else class="avatar-emoji">{{userRole === 'merchant' ? '👨‍🍳' : '😊'}}</text>
+      </view>
+      <view class="user-info">
+        <text class="user-name">{{userInfo.nickName || userInfo.merchantName}}</text>
+        <text class="user-desc">{{userRole === 'merchant' ? '商家管理后台' : '欢迎使用美味点餐'}}</text>
+      </view>
+      <view class="logout-btn" bindtap="onLogout">退出</view>
+    </view>
+
+  <!-- 功能入口 -->
+  <view class="func-grid">
+    <view class="func-item" bindtap="onGoOrder">
+      <text class="func-icon">🍽️</text>
+      <text class="func-text">去点餐</text>
+    </view>
+    <view class="func-item" bindtap="onRefresh">
+      <text class="func-icon">🔄</text>
+      <text class="func-text">刷新订单</text>
+    </view>
+    <view wx:if="{{userRole === 'merchant'}}" class="func-item" bindtap="onGoMerchant">
+      <text class="func-icon">📊</text>
+      <text class="func-text">商家管理</text>
+    </view>
+    <view class="func-item">
+      <text class="func-icon">📞</text>
+      <text class="func-text">联系客服</text>
+    </view>
+  </view>
+
+  <!-- 订单列表 -->
+  <view class="order-section">
+    <view class="order-section-title">
+      <text class="order-section-title-text">{{userRole === 'merchant' ? '所有订单' : '我的订单'}}</text>
+    </view>
+
+    <!-- 加载中 -->
+    <view wx:if="{{loading}}" class="empty-state" style="padding: 80rpx 0;">
+      <text class="empty-text">加载中...</text>
+    </view>
+
+    <!-- 空订单 -->
+    <view wx:elif="{{orders.length === 0}}" class="empty-state" style="padding: 80rpx 0;">
+      <text class="empty-icon">📋</text>
+      <text class="empty-text">暂无订单</text>
+      <view class="go-order-btn" bindtap="onGoOrder">去点餐</view>
+    </view>
+
+    <!-- 订单列表 -->
+    <view wx:else class="order-list">
+      <view
+        wx:for="{{orders}}"
+        wx:key="_id"
+        class="order-card"
+        data-id="{{item._id}}"
+        bindtap="onOrderTap"
+      >
+        <view class="order-card-header">
+          <text class="order-id">{{item.orderId}}</text>
+          <text class="order-status">{{item.status}}</text>
+        </view>
+        <view class="order-card-body">
+          <view class="order-card-items">
+            <text wx:for="{{item.items}}" wx:for-item="food" wx:key="id" class="order-food-name">
+              {{food.name}} x{{food.count}}{{index < item.items.length - 1 ? '、' : ''}}
+            </text>
+          </view>
+          <view class="order-card-info">
+            <text class="order-table">桌号：{{item.tableNo}}</text>
+            <text class="order-time">{{item.createTimeStr}}</text>
+          </view>
+        </view>
+        <view class="order-card-footer">
+          <text class="order-total">合计：<text class="order-price">¥{{item.totalPrice}}</text></text>
+        </view>
+      </view>
+    </view>
+  </view>
+  </view>
+</view>

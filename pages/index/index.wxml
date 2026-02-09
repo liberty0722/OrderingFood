@@ -1,0 +1,196 @@
+<!-- pages/index/index.wxml -->
+<view class="page-container">
+  <!-- 顶部搜索区域 -->
+  <view class="search-bar">
+    <view class="search-input-wrap">
+      <text class="search-icon">🔍</text>
+      <text class="search-placeholder">搜索菜品</text>
+    </view>
+  </view>
+
+  <!-- 主体内容区 -->
+  <view class="main-content">
+    <!-- 左侧分类栏 -->
+    <scroll-view class="category-list" scroll-y enhanced show-scrollbar="{{false}}">
+      <view
+        wx:for="{{categories}}"
+        wx:key="id"
+        class="category-item {{currentCategoryId === item.id ? 'active' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="onCategoryTap"
+      >
+        <text class="category-icon">{{item.icon}}</text>
+        <text class="category-name">{{item.name}}</text>
+      </view>
+      <!-- 左侧分类底部留白，防止被购物车栏遮挡 -->
+      <view class="category-bottom-space"></view>
+    </scroll-view>
+
+    <!-- 右侧菜品列表 -->
+    <scroll-view class="menu-list" scroll-y enhanced show-scrollbar="{{false}}">
+      <view class="menu-category-title">
+        <text>{{currentCategoryIcon}} {{currentCategoryName}}</text>
+      </view>
+      <view
+        wx:for="{{filteredMenu}}"
+        wx:key="id"
+        class="menu-item"
+      >
+        <!-- 菜品图片占位 -->
+        <view class="menu-item-img">
+          <text class="menu-item-emoji">🍽️</text>
+        </view>
+        <!-- 菜品信息 -->
+        <view class="menu-item-info">
+          <text class="menu-item-name">{{item.name}}</text>
+          <text class="menu-item-desc">{{item.description}}</text>
+          <view class="menu-item-bottom">
+            <view class="menu-item-price">
+              <text class="price-symbol">¥</text>
+              <text class="price-value">{{item.price}}</text>
+            </view>
+            <view class="menu-item-sales">月售{{item.sales}}</view>
+          </view>
+          <!-- 加减按钮 -->
+          <view class="cart-controls">
+            <view wx:if="{{item.count > 0}}" class="reduce-btn" data-id="{{item.id}}" catchtap="onReduceItem">
+              <text>−</text>
+            </view>
+            <text wx:if="{{item.count > 0}}" class="item-count">{{item.count}}</text>
+            <view class="add-btn" data-item="{{item}}" catchtap="onAddItem">
+              <text>+</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 列表底部留白 -->
+      <view class="list-bottom-space"></view>
+    </scroll-view>
+  </view>
+
+  <!-- 自创菜品悬浮按钮区域 -->
+  <view class="custom-dish-float-area">
+    <view class="custom-dish-float-btn" bindtap="onShowCustomDish">
+      <text class="custom-dish-float-icon">✏️</text>
+      <text class="custom-dish-float-text">想吃什么</text>
+    </view>
+    <view class="custom-dish-suggestion-btn" bindtap="onShowSuggestionList">
+      <text class="custom-dish-float-icon">📋</text>
+      <text class="custom-dish-float-text">我的建议</text>
+    </view>
+  </view>
+
+  <!-- 底部购物车栏 -->
+  <view class="cart-bar">
+    <view class="cart-bar-left" bindtap="onToggleCartPopup">
+      <view class="cart-icon-wrap">
+        <text class="cart-icon">🛒</text>
+        <view wx:if="{{cartTotalCount > 0}}" class="cart-badge">{{cartTotalCount}}</view>
+      </view>
+      <view class="cart-price-info">
+        <text wx:if="{{cartTotalCount > 0}}" class="cart-total-price">¥{{cartTotalPrice}}</text>
+        <text wx:else class="cart-empty-text">未选购商品</text>
+      </view>
+    </view>
+    <view
+      class="cart-checkout-btn {{cartTotalCount > 0 ? 'active' : ''}}"
+      bindtap="onGoCheckout"
+    >
+      去结算
+    </view>
+  </view>
+
+  <!-- 自定义菜品弹窗 - 提交建议给商家 -->
+  <view wx:if="{{showCustomDishPopup}}" class="custom-dish-mask" bindtap="onHideCustomDish">
+    <view class="custom-dish-popup" catchtap="onStopPropagation">
+      <view class="custom-dish-header">
+        <text class="custom-dish-title">✏️ 想吃什么？告诉商家！</text>
+        <text class="custom-dish-subtitle">提交后商家会收到通知，采纳后将上架到菜单</text>
+      </view>
+      <view class="custom-dish-form">
+        <view class="custom-dish-field">
+          <text class="field-label">菜品名称 *</text>
+          <input
+            class="field-input"
+            placeholder="请输入你想吃的菜品名称"
+            value="{{customDishName}}"
+            bindinput="onCustomDishNameInput"
+          />
+        </view>
+        <view class="custom-dish-field">
+          <text class="field-label">补充说明</text>
+          <input
+            class="field-input"
+            placeholder="口味、做法等要求（选填）"
+            value="{{customDishDesc}}"
+            bindinput="onCustomDishDescInput"
+          />
+        </view>
+      </view>
+      <view class="custom-dish-actions">
+        <view class="custom-dish-cancel" bindtap="onHideCustomDish">取消</view>
+        <view class="custom-dish-confirm" bindtap="onConfirmCustomDish">提交给商家</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 我的菜品建议列表弹窗 -->
+  <view wx:if="{{showSuggestionList}}" class="custom-dish-mask" bindtap="onHideSuggestionList">
+    <view class="suggestion-list-popup" catchtap="onStopPropagation">
+      <view class="suggestion-list-header">
+        <text class="suggestion-list-title">📋 我的菜品建议</text>
+        <text class="suggestion-list-close" bindtap="onHideSuggestionList">✕</text>
+      </view>
+      <scroll-view class="suggestion-list-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+        <view wx:if="{{suggestionList.length === 0}}" class="suggestion-empty">
+          <text class="suggestion-empty-icon">💡</text>
+          <text class="suggestion-empty-text">还没有提交过建议哦</text>
+        </view>
+        <view wx:for="{{suggestionList}}" wx:key="_id" class="suggestion-item">
+          <view class="suggestion-item-top">
+            <text class="suggestion-item-name">{{item.name}}</text>
+            <text class="suggestion-status suggestion-status-{{item.status === '待审核' ? 'pending' : item.status === '已上架' ? 'approved' : 'rejected'}}">{{item.status}}</text>
+          </view>
+          <view wx:if="{{item.description}}" class="suggestion-item-desc">
+            <text>{{item.description}}</text>
+          </view>
+          <view class="suggestion-item-time">
+            <text>{{item.createTimeStr}}</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+
+  <!-- 购物车弹窗 -->
+  <view wx:if="{{showCartPopup}}" class="cart-popup-mask" bindtap="onHideCartPopup">
+    <view class="cart-popup" catchtap="onStopPropagation">
+      <view class="cart-popup-header">
+        <text class="cart-popup-title">已选商品</text>
+        <view class="cart-popup-clear" bindtap="onClearCart">
+          <text>🗑️ 清空</text>
+        </view>
+      </view>
+      <scroll-view class="cart-popup-list" scroll-y enhanced show-scrollbar="{{false}}">
+        <view wx:for="{{cart}}" wx:key="id" class="cart-popup-item">
+          <view class="cart-popup-item-info">
+            <text class="cart-popup-item-name">{{item.name}}</text>
+          </view>
+          <view class="cart-popup-item-right">
+            <text class="cart-popup-item-price">¥{{item.price}}</text>
+            <view class="cart-popup-item-controls">
+              <view class="reduce-btn" data-id="{{item.id}}" catchtap="onPopupReduceItem">
+                <text>−</text>
+              </view>
+              <text class="item-count">{{item.count}}</text>
+              <view class="add-btn" data-item="{{item}}" catchtap="onPopupAddItem">
+                <text>+</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+</view>

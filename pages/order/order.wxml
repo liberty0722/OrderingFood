@@ -1,0 +1,61 @@
+<!-- pages/order/order.wxml -->
+<view class="order-page">
+  <!-- 桌号输入 -->
+  <view class="order-section">
+    <view class="section-title">
+      <text class="section-icon">📍</text>
+      <text>用餐信息</text>
+    </view>
+    <view class="table-input-wrap">
+      <text class="table-label">桌号</text>
+      <input
+        class="table-input"
+        type="number"
+        placeholder="请输入桌号"
+        value="{{tableNo}}"
+        bindinput="onTableNoInput"
+      />
+    </view>
+  </view>
+
+  <!-- 已选商品 -->
+  <view class="order-section">
+    <view class="section-title">
+      <text class="section-icon">🍽️</text>
+      <text>已选商品 ({{totalCount}}件)</text>
+    </view>
+    <view class="order-items">
+      <view wx:for="{{cart}}" wx:key="id" class="order-item">
+        <view class="order-item-left">
+          <text class="order-item-name">{{item.name}}</text>
+          <text class="order-item-quantity">x{{item.count}}</text>
+        </view>
+        <text class="order-item-price">¥{{item.price * item.count}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 备注 -->
+  <view class="order-section">
+    <view class="section-title">
+      <text class="section-icon">📝</text>
+      <text>备注</text>
+    </view>
+    <textarea
+      class="remark-input"
+      placeholder="请输入备注信息，如：不要辣、少盐等"
+      value="{{remark}}"
+      bindinput="onRemarkInput"
+      maxlength="200"
+    />
+  </view>
+
+  <!-- 底部价格和提交 -->
+  <view class="order-bottom">
+    <view class="order-price-info">
+      <text class="order-total-label">共{{totalCount}}件，合计</text>
+      <text class="order-total-price">¥{{totalPrice}}</text>
+    </view>
+    <view class="submit-btn" bindtap="onSubmitOrder">提交订单</view>
+  </view>
+</view>

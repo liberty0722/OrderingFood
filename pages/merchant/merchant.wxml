@@ -1,0 +1,370 @@
+<!-- pages/merchant/merchant.wxml -->
+<view class="merchant-page">
+
+  <!-- 未登录 - 密码验证 -->
+  <view wx:if="{{!isLoggedIn}}" class="login-container">
+    <view class="login-box">
+      <view class="login-icon">👨‍🍳</view>
+      <text class="login-title">商家端登录</text>
+      <text class="login-desc">请输入商家密码进入订单管理</text>
+      <input
+        class="password-input"
+        type="text"
+        password="{{true}}"
+        placeholder="请输入商家密码"
+        value="{{passwordInput}}"
+        bindinput="onPasswordInput"
+        bindconfirm="onLogin"
+      />
+      <view class="login-btn" bindtap="onLogin">登 录</view>
+      <text class="login-hint">默认密码：123456</text>
+    </view>
+  </view>
+
+  <!-- 已登录 - 商家管理 -->
+  <view wx:else class="merchant-content">
+    <!-- 顶部状态栏 -->
+    <view class="merchant-header">
+      <view class="header-info">
+        <text class="header-title">{{currentPage === 'orders' ? '📋 订单管理' : currentPage === 'menu' ? '🍽️ 菜品管理' : currentPage === 'suggestions' ? '💡 建议管理' : '⚙️ 设置'}}</text>
+        <text class="header-subtitle">{{currentPage === 'orders' ? '实时监听中，新订单自动推送' : currentPage === 'menu' ? '添加/删除菜品，实时同步到顾客端' : '查看顾客提交的菜品建议'}}</text>
+      </view>
+      <view class="header-actions">
+        <view class="refresh-btn" bindtap="onRefresh">🔄</view>
+        <view class="logout-btn" bindtap="onLogout">退出</view>
+      </view>
+    </view>
+
+    <!-- 页面切换栏：订单管理 / 菜品管理 / 菜品建议 / 数据管理 -->
+    <view class="page-switch-bar">
+      <view class="page-switch-item {{currentPage === 'orders' ? 'active' : ''}}" bindtap="onSwitchToOrders">
+        <text>📋 订单</text>
+      </view>
+      <view class="page-switch-item {{currentPage === 'menu' ? 'active' : ''}}" bindtap="onSwitchToMenu">
+        <text>🍽️ 菜品</text>
+      </view>
+      <view class="page-switch-item {{currentPage === 'suggestions' ? 'active' : ''}}" bindtap="onSwitchToSuggestions">
+        <text>💡 建议</text>
+      </view>
+      <view class="page-switch-item {{currentPage === 'settings' ? 'active' : ''}}" bindtap="onSwitchToSettings">
+        <text>⚙️ 设置</text>
+      </view>
+    </view>
+
+    <!-- ====== 订单管理页面 ====== -->
+    <view wx:if="{{currentPage === 'orders'}}" class="orders-page">
+      <!-- 订单状态标签 -->
+      <view class="tab-bar">
+        <view class="tab-item {{currentTab === 'all' ? 'active' : ''}}" data-tab="all" bindtap="onTabChange">
+          <text>全部</text>
+          <text class="tab-count">({{orders.length}})</text>
+        </view>
+        <view class="tab-item {{currentTab === 'pending' ? 'active' : ''}}" data-tab="pending" bindtap="onTabChange">
+          <text>待制作</text>
+        </view>
+        <view class="tab-item {{currentTab === 'cooking' ? 'active' : ''}}" data-tab="cooking" bindtap="onTabChange">
+          <text>制作中</text>
+        </view>
+        <view class="tab-item {{currentTab === 'done' ? 'active' : ''}}" data-tab="done" bindtap="onTabChange">
+          <text>已完成</text>
+        </view>
+      </view>
+
+      <!-- 加载中 -->
+      <view wx:if="{{loading}}" class="loading-state">
+        <text class="loading-text">加载订单中...</text>
+      </view>
+
+      <!-- 空状态 -->
+      <view wx:elif="{{filteredOrders.length === 0}}" class="empty-merchant">
+        <text class="empty-merchant-icon">📭</text>
+        <text class="empty-merchant-text">暂无订单</text>
+        <text class="empty-merchant-desc">新订单将自动出现在这里</text>
+      </view>
+
+      <!-- 订单列表 -->
+      <scroll-view wx:else class="order-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+        <view wx:for="{{filteredOrders}}" wx:key="_id" class="merchant-order-card {{item.status === '待制作' ? 'status-pending' : item.status === '制作中' ? 'status-cooking' : 'status-done'}}">
+          <!-- 订单头部 -->
+          <view class="merchant-order-header" data-id="{{item._id}}" bindtap="onOrderDetail">
+            <view class="table-badge">
+              <text class="table-badge-text">桌{{item.tableNo}}</text>
+            </view>
+            <view class="order-meta">
+              <text class="order-no">{{item.orderId}}</text>
+              <text class="order-create-time">{{item.createTimeStr}}</text>
+              <view wx:if="{{item.userName}}" class="user-info">
+                <text class="user-name">👤 {{item.userName}}</text>
+              </view>
+            </view>
+            <view class="status-badge {{item.status === '待制作' ? 'badge-pending' : item.status === '制作中' ? 'badge-cooking' : 'badge-done'}}">
+              <text>{{item.status}}</text>
+            </view>
+          </view>
+
+          <!-- 订单商品 -->
+          <view class="merchant-order-body">
+            <view wx:for="{{item.items}}" wx:for-item="food" wx:key="id" class="food-row {{food.isCustom ? 'food-row-custom' : ''}}">
+              <text wx:if="{{food.isCustom}}" class="custom-tag">自创</text>
+              <text class="food-name">{{food.name}}</text>
+              <text class="food-count">x{{food.count}}</text>
+              <text class="food-price">¥{{food.price * food.count}}</text>
+            </view>
+            <view wx:if="{{item.remark}}" class="remark-row">
+              <text class="remark-label">📝 备注：</text>
+              <text class="remark-content">{{item.remark}}</text>
+            </view>
+          </view>
+
+          <!-- 订单底部 -->
+          <view class="merchant-order-footer">
+            <text class="order-total-price">合计：¥{{item.totalPrice}}</text>
+            <view class="order-actions">
+              <view wx:if="{{item.status === '待制作'}}" class="action-btn action-start" data-id="{{item._id}}" catchtap="onStartCooking">
+                开始制作
+              </view>
+              <view wx:if="{{item.status === '制作中'}}" class="action-btn action-finish" data-id="{{item._id}}" catchtap="onFinishCooking">
+                完成出餐
+              </view>
+              <view wx:if="{{item.status === '已完成'}}" class="action-btn action-done">
+                ✅ 已完成
+              </view>
+              <!-- 删除订单按钮 -->
+              <view class="action-btn action-delete" data-id="{{item._id}}" data-table="{{item.tableNo}}" catchtap="onDeleteOrder">
+                🗑️ 删除
+              </view>
+            </view>
+          </view>
+        </view>
+        <view style="height: 40rpx;"></view>
+      </scroll-view>
+    </view>
+
+    <!-- ====== 菜品管理页面 ====== -->
+    <view wx:if="{{currentPage === 'menu'}}" class="menu-manage">
+      <!-- 操作按钮栏 -->
+      <view class="menu-action-bar">
+        <view class="menu-action-btn action-add-dish" bindtap="onShowAddDish">
+          <text>➕ 添加菜品</text>
+        </view>
+        <view class="menu-action-btn action-add-category" bindtap="onShowAddCategory">
+          <text>📁 添加分类</text>
+        </view>
+      </view>
+
+      <!-- 分类列表 -->
+      <view class="menu-section">
+        <view class="menu-section-title">
+          <text>分类列表 ({{categories.length}}个)</text>
+        </view>
+        <view class="category-manage-list">
+          <view wx:for="{{categories}}" wx:key="_id" class="category-manage-item">
+            <text class="cat-manage-icon">{{item.icon}}</text>
+            <text class="cat-manage-name">{{item.name}}</text>
+            <text class="cat-manage-id">ID: {{item.id}}</text>
+            <view class="cat-manage-delete" data-id="{{item._id}}" data-name="{{item.name}}" catchtap="onDeleteCategory">
+              <text>🗑️</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 菜品列表 -->
+      <view class="menu-section">
+        <view class="menu-section-title">
+          <text>菜品列表 ({{menuList.length}}道菜)</text>
+        </view>
+        
+        <!-- 加载中 -->
+        <view wx:if="{{menuLoading}}" class="loading-state">
+          <text class="loading-text">加载菜品中...</text>
+        </view>
+
+        <scroll-view wx:else class="menu-manage-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+          <view wx:for="{{menuList}}" wx:key="_id" class="dish-manage-card">
+            <view class="dish-manage-info">
+              <view class="dish-manage-top">
+                <text class="dish-manage-name">{{item.name}}</text>
+                <text class="dish-manage-price">¥{{item.price}}</text>
+              </view>
+              <view class="dish-manage-bottom">
+                <text class="dish-manage-desc">{{item.description}}</text>
+                <text class="dish-manage-category">分类ID: {{item.categoryId}}</text>
+              </view>
+            </view>
+            <view class="dish-manage-actions">
+              <view class="dish-delete-btn" data-id="{{item._id}}" data-name="{{item.name}}" catchtap="onDeleteDish">
+                <text>删除</text>
+              </view>
+            </view>
+          </view>
+          <view style="height: 40rpx;"></view>
+        </scroll-view>
+      </view>
+    </view>
+
+    <!-- ====== 菜品建议管理页面 ====== -->
+    <view wx:if="{{currentPage === 'suggestions'}}" class="suggestion-manage">
+      <!-- 加载中 -->
+      <view wx:if="{{suggestionLoading}}" class="loading-state">
+        <text class="loading-text">加载菜品建议中...</text>
+      </view>
+
+      <!-- 空状态 -->
+      <view wx:elif="{{suggestionList.length === 0}}" class="empty-merchant">
+        <text class="empty-merchant-icon">💡</text>
+        <text class="empty-merchant-text">暂无菜品建议</text>
+        <text class="empty-merchant-desc">顾客提交的菜品建议将显示在这里</text>
+      </view>
+
+      <!-- 建议列表 -->
+      <scroll-view wx:else class="suggestion-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+        <view wx:for="{{suggestionList}}" wx:key="_id" class="suggestion-card {{item.status === '待审核' ? 'suggestion-pending' : item.status === '已上架' ? 'suggestion-approved' : 'suggestion-ignored'}}">
+          <view class="suggestion-card-header">
+            <view class="suggestion-card-info">
+              <text class="suggestion-card-name">🍽️ {{item.name}}</text>
+              <text class="suggestion-card-status status-{{item.status === '待审核' ? 'pending' : item.status === '已上架' ? 'approved' : 'ignored'}}">{{item.status}}</text>
+            </view>
+            <view wx:if="{{item.description}}" class="suggestion-card-desc">
+              <text>📝 {{item.description}}</text>
+            </view>
+            <view class="suggestion-card-time">
+              <text>提交时间：{{item.createTimeStr}}</text>
+            </view>
+          </view>
+          <!-- 待审核状态显示操作按钮 -->
+          <view wx:if="{{item.status === '待审核'}}" class="suggestion-card-actions">
+            <view class="suggestion-approve-btn" data-id="{{item._id}}" data-name="{{item.name}}" data-desc="{{item.description}}" catchtap="onShowApproveSuggestion">
+              ✅ 采纳上架
+            </view>
+            <view class="suggestion-ignore-btn" data-id="{{item._id}}" catchtap="onIgnoreSuggestion">
+              ❌ 忽略
+            </view>
+          </view>
+        </view>
+        <view style="height: 40rpx;"></view>
+      </scroll-view>
+    </view>
+
+    <!-- ====== 设置页面 ====== -->
+    <view wx:if="{{currentPage === 'settings'}}" class="settings-page">
+      <view class="settings-section">
+        <view class="settings-title">数据管理</view>
+        <view class="settings-item" bindtap="onCleanupData">
+          <text class="settings-icon">🧹</text>
+          <text class="settings-text">清理重复数据</text>
+          <text class="settings-arrow">></text>
+        </view>
+        <view class="settings-desc">清理云端重复的菜品和分类数据</view>
+      </view>
+
+      <view class="settings-section">
+        <view class="settings-title">关于</view>
+        <view class="settings-item">
+          <text class="settings-icon">📱</text>
+          <text class="settings-text">版本</text>
+          <text class="settings-value">v1.0.0</text>
+        </view>
+      </view>
+    </view>
+
+  </view> <!-- 闭合 merchant-content -->
+
+  <!-- ====== 全局弹窗组件 ====== -->
+  
+  <!-- 添加菜品弹窗 -->
+  <view wx:if="{{showAddDishPopup}}" class="popup-mask" bindtap="onHideAddDish">
+    <view class="popup-box" catchtap="onStopPropagation">
+      <view class="popup-header">
+        <text class="popup-title">➕ 添加新菜品</text>
+      </view>
+      <view class="popup-body">
+        <view class="popup-field">
+          <text class="popup-label">菜品名称 *</text>
+          <input class="popup-input" placeholder="请输入菜品名称" value="{{newDishName}}" bindinput="onNewDishNameInput" />
+        </view>
+        <view class="popup-field">
+          <text class="popup-label">价格(元) *</text>
+          <input class="popup-input" type="digit" placeholder="请输入价格" value="{{newDishPrice}}" bindinput="onNewDishPriceInput" />
+        </view>
+        <view class="popup-field">
+          <text class="popup-label">描述</text>
+          <input class="popup-input" placeholder="请输入菜品描述" value="{{newDishDesc}}" bindinput="onNewDishDescInput" />
+        </view>
+        <view class="popup-field">
+          <text class="popup-label">所属分类</text>
+          <picker mode="selector" range="{{categories}}" range-key="name" bindchange="onNewDishCategoryChange">
+            <view class="popup-picker">
+              <text>{{categories[selectedCategoryIndex].name || '请选择分类'}}</text>
+              <text class="picker-arrow">▼</text>
+            </view>
+          </picker>
+        </view>
+      </view>
+      <view class="popup-actions">
+        <view class="popup-cancel" bindtap="onHideAddDish">取消</view>
+        <view class="popup-confirm" bindtap="onConfirmAddDish">确认添加</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 添加分类弹窗 -->
+  <view wx:if="{{showAddCategoryPopup}}" class="popup-mask" bindtap="onHideAddCategory">
+    <view class="popup-box" catchtap="onStopPropagation">
+      <view class="popup-header">
+        <text class="popup-title">📁 添加新分类</text>
+      </view>
+      <view class="popup-body">
+        <view class="popup-field">
+          <text class="popup-label">分类名称 *</text>
+          <input class="popup-input" placeholder="如：烧烤、火锅" value="{{newCategoryName}}" bindinput="onNewCategoryNameInput" />
+        </view>
+        <view class="popup-field">
+          <text class="popup-label">分类图标 (emoji)</text>
+          <input class="popup-input" placeholder="如：🍖🍲，默认🍽️" value="{{newCategoryIcon}}" bindinput="onNewCategoryIconInput" />
+        </view>
+      </view>
+      <view class="popup-actions">
+        <view class="popup-cancel" bindtap="onHideAddCategory">取消</view>
+        <view class="popup-confirm" bindtap="onConfirmAddCategory">确认添加</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 采纳上架弹窗 -->
+  <view wx:if="{{showApproveSuggestionPopup}}" class="popup-mask" bindtap="onHideApproveSuggestion">
+    <view class="popup-box" catchtap="onStopPropagation">
+      <view class="popup-header">
+        <text class="popup-title">✅ 采纳上架</text>
+      </view>
+      <view class="popup-body">
+        <view class="popup-field">
+          <text class="popup-label">菜品名称 *</text>
+          <input class="popup-input" placeholder="请输入菜品名称" value="{{approvingSuggestion.name}}" bindinput="onApproveDishNameInput" />
+        </view>
+        <view wx:if="{{approvingSuggestion.description}}" class="popup-field">
+          <text class="popup-label">顾客说明</text>
+          <view class="popup-static-text">{{approvingSuggestion.description}}</view>
+        </view>
+        <view class="popup-field">
+          <text class="popup-label">定价(元) *</text>
+          <input class="popup-input" type="digit" placeholder="请输入菜品价格" value="{{approveDishPrice}}" bindinput="onApprovePriceInput" />
+        </view>
+        <view class="popup-field">
+          <text class="popup-label">所属分类</text>
+          <picker mode="selector" range="{{categories}}" range-key="name" bindchange="onApproveCategoryChange">
+            <view class="popup-picker">
+              <text>{{categories[selectedApproveCategoryIndex].name || '请选择分类'}}</text>
+              <text class="picker-arrow">▼</text>
+            </view>
+          </picker>
+        </view>
+      </view>
+      <view class="popup-actions">
+        <view class="popup-cancel" bindtap="onHideApproveSuggestion">取消</view>
+        <view class="popup-confirm" bindtap="onConfirmApproveSuggestion">确认上架</view>
+      </view>
+    </view>
+  </view>
+
+</view> <!-- 闭合 merchant-page -->

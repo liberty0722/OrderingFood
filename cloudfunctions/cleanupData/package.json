@@ -1,0 +1,9 @@
+{
+  "name": "cleanupData",
+  "version": "1.0.0",
+  "description": "清理云端重复数据",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

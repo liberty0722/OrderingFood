@@ -1,0 +1,276 @@
+/* pages/mine/mine.wxss */
+
+.mine-page {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+/* 未登录状态 */
+.not-login {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 200rpx 40rpx;
+}
+
+.not-login-icon {
+  font-size: 120rpx;
+  margin-bottom: 30rpx;
+  opacity: 0.6;
+}
+
+.not-login-text {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 16rpx;
+}
+
+.not-login-desc {
+  font-size: 26rpx;
+  color: #999;
+  margin-bottom: 60rpx;
+}
+
+.login-btns {
+  display: flex;
+  gap: 30rpx;
+}
+
+.btn {
+  width: 200rpx;
+  height: 80rpx;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+  color: #fff;
+  border: none;
+}
+
+.customer-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.merchant-btn {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+/* 用户头像区域 */
+.user-header {
+  display: flex;
+  align-items: center;
+  padding: 60rpx 40rpx 50rpx;
+  background: linear-gradient(135deg, #FF6B35, #FF9A5C);
+}
+
+.user-avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+.avatar-emoji {
+  font-size: 64rpx;
+}
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.logout-btn {
+  margin-left: auto;
+  padding: 12rpx 24rpx;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 24rpx;
+  font-size: 24rpx;
+  color: #fff;
+}
+
+.user-info {
+  margin-left: 28rpx;
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 8rpx;
+}
+
+.user-desc {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* 功能入口 */
+.func-grid {
+  display: flex;
+  background-color: #fff;
+  margin: -30rpx 24rpx 20rpx;
+  border-radius: 16rpx;
+  padding: 30rpx 0;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.06);
+  position: relative;
+  z-index: 1;
+}
+
+.func-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.func-icon {
+  font-size: 48rpx;
+  margin-bottom: 12rpx;
+}
+
+.func-text {
+  font-size: 24rpx;
+  color: #666;
+}
+
+/* 订单区域 */
+.order-section {
+  margin: 0 24rpx;
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+}
+
+.order-section-title {
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  margin-bottom: 16rpx;
+}
+
+.order-section-title-text {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+/* 空订单 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-icon {
+  font-size: 100rpx;
+  margin-bottom: 20rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999;
+  margin-bottom: 30rpx;
+}
+
+.go-order-btn {
+  width: 200rpx;
+  height: 72rpx;
+  border-radius: 36rpx;
+  background-color: #FF6B35;
+  color: #fff;
+  font-size: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 订单列表 */
+.order-list {
+  padding-top: 8rpx;
+}
+
+.order-card {
+  background-color: #fafafa;
+  border-radius: 12rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  border: 1rpx solid #f0f0f0;
+}
+
+.order-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.order-id {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.order-status {
+  font-size: 24rpx;
+  color: #FF6B35;
+  font-weight: bold;
+  background-color: #FFF0E8;
+  padding: 4rpx 16rpx;
+  border-radius: 20rpx;
+}
+
+.order-card-body {
+  margin-bottom: 16rpx;
+}
+
+.order-card-items {
+  margin-bottom: 12rpx;
+}
+
+.order-food-name {
+  font-size: 26rpx;
+  color: #333;
+  line-height: 1.6;
+}
+
+.order-card-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.order-table {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.order-time {
+  font-size: 22rpx;
+  color: #bbb;
+}
+
+.order-card-footer {
+  border-top: 1rpx solid #f0f0f0;
+  padding-top: 16rpx;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.order-total {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.order-price {
+  font-size: 32rpx;
+  color: #FF6B35;
+  font-weight: bold;
+}

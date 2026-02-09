@@ -1,0 +1,141 @@
+/* pages/order/order.wxss */
+
+.order-page {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding-bottom: 160rpx;
+}
+
+.order-section {
+  background-color: #fff;
+  margin: 20rpx 24rpx;
+  border-radius: 16rpx;
+  padding: 24rpx;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 24rpx;
+}
+
+.section-icon {
+  margin-right: 12rpx;
+  font-size: 32rpx;
+}
+
+/* 桌号输入 */
+.table-input-wrap {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 0;
+  border-top: 1rpx solid #f5f5f5;
+}
+
+.table-label {
+  font-size: 28rpx;
+  color: #666;
+  width: 120rpx;
+}
+
+.table-input {
+  flex: 1;
+  font-size: 28rpx;
+  color: #333;
+}
+
+/* 商品列表 */
+.order-items {
+  border-top: 1rpx solid #f5f5f5;
+  padding-top: 16rpx;
+}
+
+.order-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx 0;
+}
+
+.order-item-left {
+  display: flex;
+  align-items: center;
+}
+
+.order-item-name {
+  font-size: 28rpx;
+  color: #333;
+  margin-right: 16rpx;
+}
+
+.order-item-quantity {
+  font-size: 26rpx;
+  color: #999;
+}
+
+.order-item-price {
+  font-size: 28rpx;
+  color: #FF6B35;
+  font-weight: bold;
+}
+
+/* 备注 */
+.remark-input {
+  width: 100%;
+  height: 160rpx;
+  font-size: 26rpx;
+  color: #333;
+  border: 1rpx solid #eee;
+  border-radius: 12rpx;
+  padding: 16rpx;
+  box-sizing: border-box;
+}
+
+/* 底部 */
+.order-bottom {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 120rpx;
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32rpx;
+  padding-bottom: env(safe-area-inset-bottom);
+  box-shadow: 0 -2rpx 16rpx rgba(0, 0, 0, 0.06);
+}
+
+.order-price-info {
+  display: flex;
+  align-items: baseline;
+}
+
+.order-total-label {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.order-total-price {
+  font-size: 40rpx;
+  color: #FF6B35;
+  font-weight: bold;
+  margin-left: 8rpx;
+}
+
+.submit-btn {
+  width: 240rpx;
+  height: 80rpx;
+  border-radius: 40rpx;
+  background-color: #FF6B35;
+  color: #fff;
+  font-size: 30rpx;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
